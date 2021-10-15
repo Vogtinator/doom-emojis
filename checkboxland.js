@@ -1,3 +1,7 @@
+function contentForValue(v) {
+      return ["👋🏻", "👋🏼", "👋🏽", "👋🏾", "👋🏿"][v];
+}
+
 class Checkboxland {
   constructor(props = {}) {
     if (typeof props.fillValue !== 'undefined') _checkForValidValue(props.fillValue);
@@ -32,24 +36,7 @@ class Checkboxland {
     this._data[y][x] = newValue; // We can assume the checkboxEl exists because it's within the display.
 
     const checkboxEl = this.displayEl.children[y].children[x]; // Handle indeterminate newValues
-
-    if (newValue === 2) {
-      if (checkboxEl.indeterminate) return;
-      checkboxEl.indeterminate = true; // The indeterminate state masks the checked state, so we always
-      // uncheck indeterminate checkboxes to prevent weird state combinations.
-
-      checkboxEl.checked = false;
-    } // Handle non-indeterminate newValues
-    else {
-        // Remove any previously set indeterminate values.
-        if (checkboxEl.indeterminate) {
-          checkboxEl.indeterminate = false;
-        } // If the checkbox value matches, then we don't need to update it.
-
-
-        if (checkboxEl.checked === Boolean(newValue)) return;
-        checkboxEl.checked = Boolean(newValue);
-      }
+    checkboxEl.innerText = contentForValue(newValue);
   }
 
   getData() {
@@ -131,7 +118,7 @@ class Checkboxland {
 // Private helper functions
 
 function _checkForValidValue(value) {
-  if (value === 0 || value === 1 || value === 2) return;
+  if (value < 6) return;
   throw new Error(`${value} is not a valid checkbox value.`);
 }
 
@@ -155,18 +142,13 @@ function _createInitialCheckboxDisplay(displayEl, data) {
   displayEl.setAttribute('aria-hidden', true);
   data.forEach(rowData => {
     const rowEl = document.createElement('div');
-    rowEl.style.lineHeight = 0.75;
+    rowEl.style.lineHeight = 0.8;
     rowEl.style.whiteSpace = 'nowrap';
     rowData.forEach(cellData => {
-      const checkboxEl = document.createElement('input');
-      const indeterminateVal = cellData === 2 ? true : false;
-      const checkedVal = indeterminateVal ? false : Boolean(cellData);
+      const checkboxEl = document.createElement('span');
       checkboxEl.style.margin = 0;
-      checkboxEl.style.verticalAlign = 'top';
-      checkboxEl.type = 'checkbox';
-      checkboxEl.tabIndex = '-1';
-      checkboxEl.checked = checkedVal;
-      checkboxEl.indeterminate = indeterminateVal;
+      checkboxEl.style.marginLeft = "-0.3em";
+      checkboxEl.innerText = contentForValue(cellData);
       rowEl.appendChild(checkboxEl);
     });
     displayEl.appendChild(rowEl);
@@ -642,7 +624,6 @@ function clampDimensions(imageWidth, imageHeight, canvasWidth, canvasHeight) {
 
   return heightRatio > widthRatio ? getDimensionsClampedByHeight() : getDimensionsClampedByWidth();
 }
-
 function getBlackAndWhiteImageData(context, width, height) {
   // These toGrayScale function values were borrowed from here:
   // https://www.jonathan-petitcolas.com/2017/12/28/converting-image-to-ascii-art.html#turning-an-image-into-gray-colors
@@ -671,7 +652,7 @@ function getBlackAndWhiteImageData(context, width, height) {
       pixelMatrix[rowNumber] = [];
     }
 
-    pixelMatrix[rowNumber][rowIndex] = grayScaleVal > grayscaleThreshold ? 0 : 1;
+    pixelMatrix[rowNumber][rowIndex] = 4 - Math.round(grayScaleVal * 4 / 255);
   }
 
   return [rgbaImageArray, pixelMatrix];
