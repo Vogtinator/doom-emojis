@@ -1,4 +1,4 @@
-import { Checkboxland } from "https://unpkg.com/checkboxland?module";
+import { Checkboxland } from "./checkboxland.js";
 window.Checkboxland = Checkboxland;
 
 const canvas = document.querySelector("canvas");
